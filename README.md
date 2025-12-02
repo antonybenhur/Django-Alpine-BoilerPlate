@@ -18,7 +18,21 @@ A modern, production-ready Django boilerplate built for speed, scalability, and 
 *   **Email Testing**: Integrated **Mailhog** for local email testing.
 *   **Dockerized**: Fully containerized environment for consistent development and deployment.
 
-## 🛠️ Tech Stack
+## � Screenshots
+
+### Dashboard
+![Dashboard](screenshots/dashboard.png)
+
+### Kanban Board
+![Kanban Board](screenshots/kanban.png)
+
+### Calendar
+![Calendar](screenshots/calendar.png)
+
+### Login Page
+![Login Page](screenshots/login.png)
+
+## �🛠️ Tech Stack
 
 *   **Backend**: Python 3.11+, Django 5.0+
 *   **Frontend**: HTML5, Tailwind CSS, Alpine.js
