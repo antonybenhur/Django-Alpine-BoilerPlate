@@ -1,0 +1,10 @@
+{% with name=name|default:'' id=id|default:name label=label checked=checked disabled=disabled %}
+<div class="flex items-start gap-3">
+    <div class="relative flex items-center">
+        <input type="checkbox" id="{{ id }}" name="{{ name }}" {% if checked %}checked{% endif %} {% if disabled %}disabled{% endif %}
+            class="peer h-5 w-5 appearance-none rounded border border-gray-300 dark:border-gray-500 bg-white dark:bg-gray-700 transition-all checked:bg-gray-900 dark:checked:bg-white checked:border-gray-900 dark:checked:border-white focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50">
+        <svg class="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-white dark:text-gray-900 opacity-0 peer-checked:opacity-100 transition-opacity w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    {% if label %}<label for="{{ id }}" class="text-sm text-gray-900 dark:text-white pt-0.5 select-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:text-gray-400 dark:peer-disabled:text-gray-500">{{ label }}</label>{% endif %}
+</div>
+{% endwith %}

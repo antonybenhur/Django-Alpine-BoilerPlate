@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load account %}
+
+{% block title %}{% trans "Confirm E-mail Address" %}{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[calc(100vh-10rem)]">
+    <div class="w-full max-w-md">
+        <div
+            class="rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white leading-6">{% trans "Confirm E-mail
+                    Address" %}</h3>
+            </div>
+            <div class="p-6">
+                {% if confirmation %}
+                {% user_display confirmation.email_address.user as user_display %}
+                <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                    {% blocktrans with confirmation.email_address.email as email %}Please confirm that <a
+                        href="mailto:{{ email }}" class="font-medium text-gray-900 dark:text-white">{{ email }}</a> is
+                    an e-mail address for user {{ user_display }}.{% endblocktrans %}
+                </p>
+
+                <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="w-full inline-flex items-center justify-center h-10 px-4 text-sm font-medium border border-transparent rounded-geist bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
+                        {% trans "Confirm" %}
+                    </button>
+                </form>
+                {% else %}
+                {% url 'account_email' as email_url %}
+                <p class="text-sm text-gray-600 dark:text-gray-300">
+                    {% blocktrans %}This e-mail confirmation link expired or is invalid. Please <a
+                        href="{{ email_url }}" class="text-blue-600 hover:underline">issue a new e-mail confirmation
+                        request</a>.{% endblocktrans %}
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

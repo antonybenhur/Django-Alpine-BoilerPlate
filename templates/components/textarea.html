@@ -1,0 +1,8 @@
+{% with name=name|default:'' id=id|default:name label=label value=value|default:'' rows=rows|default:'4' placeholder=placeholder|default:'' error=error %}
+<div class="flex flex-col gap-1.5 w-full {{ wrapper_class }}">
+    {% if label %}<label for="{{ id }}" class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{{ label }}</label>{% endif %}
+    <textarea name="{{ name }}" id="{{ id }}" rows="{{ rows }}" placeholder="{{ placeholder }}"
+        class="flex w-full rounded-geist border bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400 focus:border-gray-900 dark:focus:border-gray-400 placeholder:text-gray-400 dark:placeholder:text-gray-500 {% if error %}border-red-500 focus:border-red-500 focus:ring-red-500{% else %}border-gray-200 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500{% endif %} {{ class }}">{{ value }}</textarea>
+    {% if error %}<span class="text-xs text-red-500 dark:text-red-400">{{ error }}</span>{% endif %}
+</div>
+{% endwith %}

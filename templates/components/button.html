@@ -1,0 +1,23 @@
+{% with type=type|default:'button' variant=variant|default:'primary' size=size|default:'md' width=width|default:'auto' %}
+<button type="{{ type }}" {% if disabled or loading %}disabled{% endif %}
+    class="group relative inline-flex items-center justify-center font-medium transition-all duration-200 ease-in-out border select-none rounded-geist
+        {% if size == 'sm' %}h-8 px-3 text-sm{% elif size == 'lg' %}h-12 px-6 text-base{% else %}h-10 px-4 text-sm{% endif %}
+        {% if width == 'full' %}w-full flex{% endif %}
+        {% if variant == 'primary' %}bg-gray-900 dark:bg-white border-transparent text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 disabled:bg-gray-100 dark:disabled:bg-gray-700 disabled:text-gray-400 dark:disabled:text-gray-500 disabled:border-gray-200 dark:disabled:border-gray-600
+        {% elif variant == 'secondary' %}bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white hover:border-gray-500 dark:hover:border-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500
+        {% elif variant == 'error' %}bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 hover:border-red-300 dark:hover:border-red-700
+        {% elif variant == 'ghost' %}bg-transparent border-transparent text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white{% endif %}
+        {{ class }}"
+    {% if action %}@click="{{ action }}"{% endif %}>
+    {% if loading %}
+        <div class="absolute inset-0 flex items-center justify-center">{% include "components/loading_dots.html" %}</div>
+        <div class="invisible flex items-center gap-2">{{ slot }}</div>
+    {% else %}
+        <div class="flex items-center gap-2">
+            {% if prefix %}<span class="text-current opacity-60">{{ prefix }}</span>{% endif %}
+            <span>{{ slot }}</span>
+            {% if suffix %}<span class="text-current opacity-60">{{ suffix }}</span>{% endif %}
+        </div>
+    {% endif %}
+</button>
+{% endwith %}

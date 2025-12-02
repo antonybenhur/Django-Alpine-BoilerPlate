@@ -1,0 +1,13 @@
+{% with name=name|default:'' id=id|default:name label=label options=options %}
+<div class="flex flex-col gap-1.5 w-full">
+    {% if label %}<label for="{{ id }}" class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{{ label }}</label>{% endif %}
+    <div class="relative">
+        <select name="{{ name }}" id="{{ id }}" class="appearance-none flex h-10 w-full rounded-geist border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white focus:border-gray-900 dark:focus:border-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400 disabled:cursor-not-allowed disabled:bg-gray-50 dark:disabled:bg-gray-800 pr-8">
+            {{ slot }} 
+        </select>
+        <div class="pointer-events-none absolute top-0 right-0 flex h-full w-8 items-center justify-center text-gray-500 dark:text-gray-400">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><path d="m6 9 6 6 6-6"/></svg>
+        </div>
+    </div>
+</div>
+{% endwith %}

@@ -1,0 +1,11 @@
+{% with size=size|default:'32' alt=alt|default:'Avatar' %}
+<div class="relative inline-block rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 ring-1 ring-gray-200 dark:ring-gray-600 grayscale-[0] hover:grayscale-0 transition-all duration-200"
+    style="width: {{ size }}px; height: {{ size }}px;"
+    x-data="{ src: '{{ src|default:'' }}', fallback: 'https://avatar.vercel.sh/{{ alt|urlencode }}?size={{ size }}' }">
+    <img :src="src || fallback" alt="{{ alt }}" @error="src = fallback" class="w-full h-full object-cover" width="{{ size }}" height="{{ size }}">
+    {% if status %}
+    <span class="absolute bottom-0 right-0 block rounded-full ring-2 ring-white dark:ring-gray-800 {% if status == 'online' %}bg-green-500{% elif status == 'busy' %}bg-red-500{% elif status == 'away' %}bg-amber-400{% else %}bg-gray-400{% endif %}"
+        style="width: {{ size|add:'-24'|default:'8' }}px; height: {{ size|add:'-24'|default:'8' }}px; min-width: 8px; min-height: 8px;"></span>
+    {% endif %}
+</div>
+{% endwith %}

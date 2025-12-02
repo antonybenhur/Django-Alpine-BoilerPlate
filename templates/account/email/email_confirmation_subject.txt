@@ -1,0 +1,2 @@
+{% load i18n %}
+{% blocktrans %}Confirm Your E-mail Address{% endblocktrans %}

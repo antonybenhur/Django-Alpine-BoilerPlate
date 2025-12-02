@@ -1,0 +1,323 @@
+
+import os
+
+# Correct content for templates/demos/kanban.html
+kanban_html_content = """{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Kanban Board{% endblock %}
+{% block breadcrumb %}Demos / Kanban Board{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto h-[calc(100vh-12rem)]" 
+     x-data="{ 
+        showModal: false, 
+        isEdit: false, 
+        taskId: null, 
+        formTitle: '', 
+        formDesc: '', 
+        formStatus: 'todo',
+        openCreate() {
+            this.isEdit = false;
+            this.taskId = null;
+            this.formTitle = '';
+            this.formDesc = '';
+            this.formStatus = 'todo';
+            this.showModal = true;
+        },
+        openEdit(id, title, desc, status) {
+            this.isEdit = true;
+            this.taskId = id;
+            this.formTitle = title;
+            this.formDesc = desc;
+            this.formStatus = status;
+            this.showModal = true;
+        }
+     }">
+     
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Kanban Board</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Drag and drop tasks to manage your workflow.</p>
+        </div>
+        <button @click="openCreate()" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-geist shadow-sm text-white bg-gray-900 dark:bg-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+            Add Task
+        </button>
+    </div>
+
+    <div class="flex h-full gap-6 overflow-x-auto pb-4">
+        <!-- Todo Column -->
+        <div class="flex-shrink-0 w-80 flex flex-col bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 h-full">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                    <h3 class="font-medium text-gray-900 dark:text-white">To Do</h3>
+                    <span id="count-todo" class="px-2 py-0.5 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-medium text-gray-600 dark:text-gray-300">
+                        {{ columns.todo|length }}
+                    </span>
+                </div>
+            </div>
+            <div class="flex-1 p-3 overflow-y-auto kanban-column" data-status="todo" id="todo-list">
+                {% for card in columns.todo %}
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-geist border border-gray-200 dark:border-gray-700 shadow-sm mb-3 cursor-move hover:border-gray-400 transition-colors group relative kanban-card" data-id="{{ card.id }}">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="text-sm font-medium text-gray-900 dark:text-white">{{ card.title }}</h4>
+                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button @click="openEdit('{{ card.id }}', '{{ card.title|escapejs }}', '{{ card.description|escapejs }}', 'todo')" class="text-gray-400 hover:text-blue-500 p-1">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                            </button>
+                            <form action="{% url 'delete_kanban_card' card.id %}" method="POST" onsubmit="return confirm('Are you sure?');" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="text-gray-400 hover:text-red-500 p-1">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{{ card.description }}</p>
+                    <div class="mt-3 flex items-center justify-between">
+                        <div class="flex -space-x-2">
+                            <div class="w-6 h-6 rounded-full bg-gray-200 border-2 border-white dark:border-gray-800 flex items-center justify-center text-[10px] font-bold text-gray-500">U</div>
+                        </div>
+                        <span class="text-[10px] text-gray-400">{{ card.created_at|date:"M d" }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- In Progress Column -->
+        <div class="flex-shrink-0 w-80 flex flex-col bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 h-full">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                    <h3 class="font-medium text-gray-900 dark:text-white">In Progress</h3>
+                    <span id="count-in_progress" class="px-2 py-0.5 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-medium text-gray-600 dark:text-gray-300">
+                        {{ columns.in_progress|length }}
+                    </span>
+                </div>
+            </div>
+            <div class="flex-1 p-3 overflow-y-auto kanban-column" data-status="in_progress" id="in-progress-list">
+                {% for card in columns.in_progress %}
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-geist border border-blue-400 dark:border-blue-500 shadow-sm mb-3 cursor-move hover:border-blue-500 transition-colors group relative kanban-card" data-id="{{ card.id }}">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="text-sm font-medium text-gray-900 dark:text-white">{{ card.title }}</h4>
+                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button @click="openEdit('{{ card.id }}', '{{ card.title|escapejs }}', '{{ card.description|escapejs }}', 'in_progress')" class="text-gray-400 hover:text-blue-500 p-1">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                            </button>
+                            <form action="{% url 'delete_kanban_card' card.id %}" method="POST" onsubmit="return confirm('Are you sure?');" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="text-gray-400 hover:text-red-500 p-1">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{{ card.description }}</p>
+                    <div class="mt-3 flex items-center justify-between">
+                        <div class="flex -space-x-2">
+                            <div class="w-6 h-6 rounded-full bg-gray-200 border-2 border-white dark:border-gray-800 flex items-center justify-center text-[10px] font-bold text-gray-500">U</div>
+                        </div>
+                        <span class="text-[10px] text-gray-400">{{ card.created_at|date:"M d" }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Done Column -->
+        <div class="flex-shrink-0 w-80 flex flex-col bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 h-full">
+            <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    <h3 class="font-medium text-gray-900 dark:text-white">Done</h3>
+                    <span id="count-done" class="px-2 py-0.5 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-medium text-gray-600 dark:text-gray-300">
+                        {{ columns.done|length }}
+                    </span>
+                </div>
+            </div>
+            <div class="flex-1 p-3 overflow-y-auto kanban-column" data-status="done" id="done-list">
+                {% for card in columns.done %}
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-geist border border-green-400 dark:border-green-500 shadow-sm mb-3 cursor-move hover:border-green-500 transition-colors group relative kanban-card" data-id="{{ card.id }}">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="text-sm font-medium text-gray-900 dark:text-white">{{ card.title }}</h4>
+                        <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button @click="openEdit('{{ card.id }}', '{{ card.title|escapejs }}', '{{ card.description|escapejs }}', 'done')" class="text-gray-400 hover:text-blue-500 p-1">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                            </button>
+                            <form action="{% url 'delete_kanban_card' card.id %}" method="POST" onsubmit="return confirm('Are you sure?');" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="text-gray-400 hover:text-red-500 p-1">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{{ card.description }}</p>
+                    <div class="mt-3 flex items-center justify-between">
+                        <div class="flex -space-x-2">
+                            <div class="w-6 h-6 rounded-full bg-gray-200 border-2 border-white dark:border-gray-800 flex items-center justify-center text-[10px] font-bold text-gray-500">U</div>
+                        </div>
+                        <span class="text-[10px] text-gray-400">{{ card.created_at|date:"M d" }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div x-show="showModal" style="display: none;" class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div x-show="showModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" @click="showModal = false"></div>
+
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+            <div x-show="showModal" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <!-- Dynamic Form Action -->
+                <form :action="isEdit ? '/demos/kanban/edit/' + taskId + '/' : '{% url 'create_kanban_card' %}'" method="POST">
+                    {% csrf_token %}
+                    <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white" id="modal-title" x-text="isEdit ? 'Edit Task' : 'Add New Task'"></h3>
+                                <div class="mt-4 space-y-4">
+                                    <div>
+                                        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Title</label>
+                                        <input type="text" name="title" id="title" x-model="formTitle" required class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-900 focus:border-gray-900 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Description</label>
+                                        <textarea name="description" id="description" x-model="formDesc" rows="3" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-900 focus:border-gray-900 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white"></textarea>
+                                    </div>
+                                    <div x-show="!isEdit">
+                                        <label for="status" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Status</label>
+                                        <select name="status" id="status" x-model="formStatus" class="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-gray-900 focus:border-gray-900 sm:text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-white">
+                                            <option value="todo">To Do</option>
+                                            <option value="in_progress">In Progress</option>
+                                            <option value="done">Done</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-gray-900 text-base font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:ml-3 sm:w-auto sm:text-sm" x-text="isEdit ? 'Save Changes' : 'Create Task'"></button>
+                        <button type="button" @click="showModal = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SortableJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const columns = document.querySelectorAll('.kanban-column');
+        
+        // Style definitions
+        const styles = {
+            'todo': {
+                remove: ['border-blue-400', 'dark:border-blue-500', 'hover:border-blue-500', 'border-green-400', 'dark:border-green-500', 'hover:border-green-500'],
+                add: ['border-gray-200', 'dark:border-gray-700', 'hover:border-gray-400']
+            },
+            'in_progress': {
+                remove: ['border-gray-200', 'dark:border-gray-700', 'hover:border-gray-400', 'border-green-400', 'dark:border-green-500', 'hover:border-green-500'],
+                add: ['border-blue-400', 'dark:border-blue-500', 'hover:border-blue-500']
+            },
+            'done': {
+                remove: ['border-gray-200', 'dark:border-gray-700', 'hover:border-gray-400', 'border-blue-400', 'dark:border-blue-500', 'hover:border-blue-500'],
+                add: ['border-green-400', 'dark:border-green-500', 'hover:border-green-500']
+            }
+        };
+
+        function updateCardStyle(cardEl, status) {
+            const style = styles[status];
+            if (!style) return;
+            
+            style.remove.forEach(cls => cardEl.classList.remove(cls));
+            style.add.forEach(cls => cardEl.classList.add(cls));
+        }
+
+        function updateCounts(fromStatus, toStatus) {
+            if (fromStatus === toStatus) return;
+            
+            const fromCountEl = document.getElementById('count-' + fromStatus);
+            const toCountEl = document.getElementById('count-' + toStatus);
+            
+            if (fromCountEl) {
+                let count = parseInt(fromCountEl.innerText.trim());
+                fromCountEl.innerText = Math.max(0, count - 1);
+            }
+            
+            if (toCountEl) {
+                let count = parseInt(toCountEl.innerText.trim());
+                toCountEl.innerText = count + 1;
+            }
+        }
+
+        columns.forEach(column => {
+            new Sortable(column, {
+                group: 'kanban',
+                animation: 150,
+                ghostClass: 'bg-gray-100',
+                onEnd: function(evt) {
+                    const itemEl = evt.item;
+                    const fromStatus = evt.from.getAttribute('data-status');
+                    const toStatus = evt.to.getAttribute('data-status');
+                    const cardId = itemEl.getAttribute('data-id');
+                    const newOrder = evt.newIndex;
+                    
+                    // Update counts locally
+                    updateCounts(fromStatus, toStatus);
+                    
+                    // Update card style
+                    updateCardStyle(itemEl, toStatus);
+
+                    // Update server
+                    fetch('{% url "update_kanban_card" %}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({
+                            card_id: cardId,
+                            status: toStatus,
+                            order: newOrder
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!data.success) {
+                            console.error('Error updating card:', data.error);
+                            // Ideally revert the move here
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
+"""
+
+# Path to the file
+file_path = os.path.join(os.getcwd(), 'templates', 'demos', 'kanban.html')
+
+# Write the content to the file
+with open(file_path, 'w', encoding='utf-8') as f:
+    f.write(kanban_html_content)
+
+print(f"Successfully overwrote {file_path}")

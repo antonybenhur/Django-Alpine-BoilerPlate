@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Verify Your Email Address" %}{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[calc(100vh-10rem)]">
+    <div class="w-full max-w-md">
+        <div
+            class="rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white leading-6">{% trans "Verify Your Email
+                    Address" %}</h3>
+            </div>
+            <div class="p-6">
+                <div class="text-sm text-gray-600 dark:text-gray-300 space-y-4">
+                    <p>{% blocktrans %}We have sent an email to you for verification. Follow the link provided to
+                        finalize the signup process. Please contact us if you do not receive the verification email
+                        within a few minutes.{% endblocktrans %}</p>
+                </div>
+
+                <div class="mt-6">
+                    <a href="{% url 'account_login' %}"
+                        class="w-full inline-flex items-center justify-center h-10 px-4 text-sm font-medium border border-transparent rounded-geist bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
+                        {% trans "Return to Sign In" %}
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% with state=state|default:'ready' label=label %}
+<div class="flex items-center gap-2 {{ class }}">
+    <span class="block w-2.5 h-2.5 rounded-full
+        {% if state == 'ready' %}bg-blue-500
+        {% elif state == 'error' %}bg-red-500
+        {% elif state == 'queued' %}bg-gray-300 dark:bg-gray-600
+        {% elif state == 'canceled' %}bg-gray-300 dark:bg-gray-600
+        {% elif state == 'building' %}bg-amber-400 animate-pulse{% endif %}">
+    </span>
+    {% if label %}<span class="text-sm text-gray-600 dark:text-gray-400 capitalize">{{ label }}</span>{% endif %}
+</div>
+{% endwith %}

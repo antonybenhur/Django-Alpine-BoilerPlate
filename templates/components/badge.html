@@ -1,0 +1,18 @@
+{% with variant=variant|default:'gray' size=size|default:'md' shape=shape|default:'square' %}
+<span class="inline-flex items-center justify-center font-medium border border-transparent whitespace-nowrap
+    {% if shape == 'pill' %}rounded-full{% else %}rounded-geist{% endif %}
+    {% if size == 'sm' %}px-2 py-0.5 text-xs h-5{% elif size == 'lg' %}px-3 py-1 text-sm h-7{% else %}px-2.5 py-0.5 text-xs h-6{% endif %}
+    {% if variant == 'gray' %}bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300
+    {% elif variant == 'blue' %}bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400
+    {% elif variant == 'red' %}bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400
+    {% elif variant == 'amber' %}bg-amber-50 dark:bg-amber-900/30 text-amber-600 dark:text-amber-400
+    {% elif variant == 'green' %}bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400
+    {% elif variant == 'violet' %}bg-violet-50 dark:bg-violet-900/30 text-violet-600 dark:text-violet-400
+    {% elif variant == 'outline' %}bg-transparent border-gray-200 dark:border-gray-600 text-gray-600 dark:text-gray-300{% endif %}
+    {{ class }}">
+    {% if dot %}
+    <span class="mr-1.5 -ml-0.5 w-1.5 h-1.5 rounded-full {% if variant == 'gray' %}bg-gray-500{% elif variant == 'blue' %}bg-blue-500{% elif variant == 'red' %}bg-red-500{% elif variant == 'amber' %}bg-amber-500{% elif variant == 'green' %}bg-green-500{% endif %}"></span>
+    {% endif %}
+    {{ slot }}
+</span>
+{% endwith %}

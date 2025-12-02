@@ -1,0 +1,10 @@
+{% with text=text|default:'npm install' width=width|default:'auto' type=type|default:'default' %}
+<div x-data="{ text: '{{ text|escapejs }}', copied: false, copy() { navigator.clipboard.writeText(this.text); this.copied = true; setTimeout(() => this.copied = false, 2000); } }"
+    class="group relative border rounded-geist px-4 py-3 font-mono text-sm flex items-center justify-between {% if type == 'dark' %}bg-black text-white border-black{% elif type == 'lite' %}bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200{% else %}bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-800 dark:text-gray-200{% endif %} {{ class }}" style="width: {{ width }}">
+    <span class="truncate pr-8 select-all"><span class="text-gray-400 dark:text-gray-500 select-none">$ </span>{{ text }}</span>
+    <button @click="copy()" class="absolute right-2 p-1.5 rounded-md transition-all opacity-0 group-hover:opacity-100 focus:opacity-100" :class="copied ? 'text-green-500' : 'text-gray-400 dark:text-gray-500 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white'" title="Copy to clipboard">
+        <svg x-show="!copied" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        <svg x-show="copied" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </button>
+</div>
+{% endwith %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Two-Factor Authentication" %}{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center min-h-[calc(100vh-10rem)]">
+    <div class="w-full max-w-md">
+        {% include "components/card.html" with title="Two-Factor Authentication" %}
+        {% slot %}
+        <p class="text-sm text-gray-600 mb-4">{% trans "Please enter the token from your authenticator app." %}</p>
+        <form class="space-y-4" method="POST">
+            {% csrf_token %}
+            {% if form.errors %}
+            <div class="p-3 text-sm text-red-600 bg-red-50 rounded-geist border border-red-200">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            {% include "components/input.html" with label="Token" name="otp_token" type="text" placeholder="123456" %}
+
+            {% if next %}
+            <input type="hidden" name="next" value="{{ next }}" />
+            {% endif %}
+
+            {% include "components/button.html" with type="submit" width="full" slot="Verify" %}
+        </form>
+        {% endslot %}
+        {% endinclude %}
+    </div>
+</div>
+{% endblock %}

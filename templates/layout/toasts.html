@@ -1,0 +1,21 @@
+<div x-data="{ notifications: [], add(e) { this.notifications.push({ id: Date.now(), message: e.detail.message, type: e.detail.type || 'default', }); }, remove(id) { this.notifications = this.notifications.filter(n => n.id !== id); } }"
+    @notify.window="add($event)"
+    class="fixed bottom-6 right-6 z-50 flex flex-col gap-2 w-full max-w-sm pointer-events-none">
+    <template x-for="note in notifications" :key="note.id">
+        <div class="pointer-events-auto shadow-geist-hover rounded-geist p-4 border flex items-center justify-between transition-all duration-300 transform translate-y-0 opacity-100"
+            :class="{ 
+                'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white': note.type === 'default', 
+                'bg-red-600 text-white border-red-600': note.type === 'error', 
+                'bg-green-600 text-white border-green-600': note.type === 'success' 
+            }"
+            x-transition:enter="translate-y-4 opacity-0" x-transition:leave="opacity-0 scale-95"
+            x-init="setTimeout(() => remove(note.id), 4000)">
+            <span class="text-sm font-medium" x-text="note.message"></span>
+            <button @click="remove(note.id)" class="ml-3 opacity-70 hover:opacity-100">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </template>
+</div>

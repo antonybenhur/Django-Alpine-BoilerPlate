@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Websockets Demo{% endblock %}
+{% block breadcrumb %}Demos / Websockets{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Websockets Echo</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Real-time communication using Django Channels.</p>
+        </div>
+        <div id="status" class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+            <span class="text-sm text-gray-600 dark:text-gray-400">Disconnected</span>
+        </div>
+    </div>
+
+    <div class="rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white leading-6">Echo Chamber</h3>
+        </div>
+        <div class="p-6 space-y-6" x-data="wsDemo()">
+            <div class="h-64 bg-gray-50 dark:bg-gray-700 rounded-geist border border-gray-200 dark:border-gray-600 p-4 overflow-y-auto space-y-2" id="chat-log">
+                <template x-for="msg in messages" :key="msg.id">
+                    <div class="p-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-600 shadow-sm text-sm">
+                        <span class="font-medium text-blue-600 dark:text-blue-400">Server:</span> <span class="text-gray-900 dark:text-white" x-text="msg.text"></span>
+                    </div>
+                </template>
+            </div>
+
+            <form @submit.prevent="sendMessage" class="flex gap-3">
+                <div class="flex-1">
+                    <input type="text" name="message" placeholder="Type a message..."
+                        class="flex h-10 w-full rounded-geist border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400 focus:border-gray-900 dark:focus:border-gray-400 placeholder:text-gray-400 dark:placeholder:text-gray-500 hover:border-gray-400 dark:hover:border-gray-500">
+                </div>
+                <button type="submit"
+                    class="inline-flex items-center justify-center h-10 px-4 text-sm font-medium border border-transparent rounded-geist bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
+                    Send
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function wsDemo() {
+        return {
+            socket: null,
+            messages: [],
+
+            init() {
+                this.connect();
+            },
+
+            connect() {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                this.socket = new WebSocket(`${protocol}//${window.location.host}/ws/echo/`);
+
+                this.socket.onopen = () => {
+                    document.getElementById('status').innerHTML = `
+                        <span class="w-2.5 h-2.5 rounded-full bg-green-500"></span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Connected</span>
+                    `;
+                };
+
+                this.socket.onmessage = (e) => {
+                    const data = JSON.parse(e.data);
+                    this.messages.push({ id: Date.now(), text: data.message });
+                    this.$nextTick(() => {
+                        const chatLog = document.getElementById('chat-log');
+                        chatLog.scrollTop = chatLog.scrollHeight;
+                    });
+                };
+
+                this.socket.onclose = () => {
+                    document.getElementById('status').innerHTML = `
+                        <span class="w-2.5 h-2.5 rounded-full bg-red-500"></span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Disconnected</span>
+                    `;
+                    setTimeout(() => this.connect(), 1000);
+                };
+            },
+
+            sendMessage(e) {
+                const input = e.target.querySelector('input[name="message"]');
+                const message = input.value;
+                if (!message.trim()) return;
+
+                this.socket.send(JSON.stringify({
+                    'message': message
+                }));
+                input.value = '';
+            }
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,644 @@
+
+import os
+
+# Correct content for templates/calendar.html
+calendar_html_content = """{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Calendar - CRIUS{% endblock %}
+{% block breadcrumb %}Calendar{% endblock %}
+
+{% block content %}
+<div x-data="calendarApp()" x-init="init()" class="space-y-6">
+    <!-- Page Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">Calendar</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage your schedule and events</p>
+        </div>
+        <button @click="openAddEventModal()" 
+            class="inline-flex items-center gap-2 h-10 px-4 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-geist hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Add Event
+        </button>
+    </div>
+
+    <!-- Calendar Card -->
+    <div class="rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+        <!-- Calendar Header -->
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <!-- Navigation -->
+                <div class="flex items-center gap-1">
+                    <button @click="previous()" 
+                        class="p-2 rounded-geist hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <button @click="next()" 
+                        class="p-2 rounded-geist hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                        <svg class="w-5 h-5 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Current Month/Year/Date -->
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white" x-text="headerTitle"></h2>
+                
+                <!-- Today Button -->
+                <button @click="goToToday()" 
+                    class="px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-600 rounded-geist hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                    Today
+                </button>
+            </div>
+            
+            <!-- View Toggle -->
+            <div class="flex items-center bg-gray-100 dark:bg-gray-700 rounded-geist p-1">
+                <button @click="view = 'month'" 
+                    :class="view === 'month' ? 'bg-white dark:bg-gray-600 shadow-sm text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'"
+                    class="px-3 py-1.5 text-xs font-medium rounded transition-all">
+                    Month
+                </button>
+                <button @click="view = 'day'" 
+                    :class="view === 'day' ? 'bg-white dark:bg-gray-600 shadow-sm text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'"
+                    class="px-3 py-1.5 text-xs font-medium rounded transition-all">
+                    Day
+                </button>
+            </div>
+        </div>
+
+        <!-- Month View -->
+        <div x-show="view === 'month'" class="p-4">
+            <!-- Days Header -->
+            <div class="grid grid-cols-7 mb-2">
+                <template x-for="day in ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']" :key="day">
+                    <div class="py-3 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider" x-text="day"></div>
+                </template>
+            </div>
+            
+            <!-- Calendar Days -->
+            <div class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-gray-700 rounded-lg overflow-hidden">
+                <template x-for="(day, index) in calendarDays" :key="index">
+                    <div @click="day.date && selectDate(day.date)"
+                        :class="{
+                            'bg-white dark:bg-gray-800': day.currentMonth,
+                            'bg-gray-50 dark:bg-gray-800/50': !day.currentMonth,
+                            'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700': day.date,
+                            'ring-2 ring-inset ring-gray-900 dark:ring-white': day.isSelected,
+                        }"
+                        class="min-h-[100px] p-2 transition-colors">
+                        
+                        <!-- Day Number -->
+                        <div class="flex items-center justify-between mb-1">
+                            <span :class="{
+                                'text-gray-900 dark:text-white font-medium': day.currentMonth,
+                                'text-gray-400 dark:text-gray-600': !day.currentMonth,
+                                'bg-gray-900 dark:bg-white text-white dark:text-gray-900 w-7 h-7 rounded-full flex items-center justify-center': day.isToday
+                            }" 
+                            class="text-sm" x-text="day.dayNumber"></span>
+                        </div>
+                        
+                        <!-- Events -->
+                        <div class="space-y-1">
+                            <template x-for="event in getEventsForDate(day.date)" :key="event.id">
+                                <div @click.stop="openEventModal(event)"
+                                    :class="eventColors[event.color]"
+                                    class="px-2 py-1 text-xs font-medium rounded truncate cursor-pointer hover:opacity-80 transition-opacity">
+                                    <span x-text="event.title"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <!-- Day View -->
+        <div x-show="view === 'day'" class="flex flex-col h-[600px] bg-white dark:bg-gray-800">
+            <!-- All Day Section -->
+            <div class="flex-none border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50" x-show="dayEvents.some(e => e.duration === 'All day')">
+                <div class="flex">
+                    <div class="w-16 flex-none border-r border-gray-200 dark:border-gray-700 p-2 text-xs text-gray-500 dark:text-gray-400 text-right font-medium">
+                        All day
+                    </div>
+                    <div class="flex-auto p-2 space-y-1">
+                        <template x-for="event in dayEvents.filter(e => e.duration === 'All day')" :key="event.id">
+                            <div @click="openEventModal(event)"
+                                :class="eventColors[event.color]"
+                                class="px-2 py-1 text-xs font-medium rounded truncate cursor-pointer hover:opacity-80 transition-opacity">
+                                <span x-text="event.title"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrollable Timeline -->
+            <div class="flex-auto overflow-y-auto relative">
+                 <div class="flex min-h-full">
+                    <!-- Time Column -->
+                    <div class="w-16 flex-none border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
+                        <template x-for="hour in hours" :key="hour">
+                            <div class="h-20 relative">
+                                <div class="absolute -top-2.5 right-2 text-xs text-gray-500 dark:text-gray-400" x-text="formatHour(hour)"></div>
+                            </div>
+                        </template>
+                    </div>
+                    
+                    <!-- Events Grid -->
+                    <div class="flex-auto relative">
+                        <!-- Grid Lines -->
+                        <template x-for="hour in hours" :key="hour">
+                            <div class="h-20 border-b border-gray-100 dark:border-gray-700/50"></div>
+                        </template>
+                        
+                        <!-- Timed Events -->
+                        <template x-for="event in dayEvents.filter(e => e.duration !== 'All day')" :key="event.id">
+                            <div @click="openEventModal(event)"
+                                :class="eventColors[event.color]"
+                                :style="getEventStyle(event)"
+                                class="absolute inset-x-2 rounded-lg border border-current border-opacity-20 p-2 cursor-pointer hover:opacity-90 transition-opacity overflow-hidden">
+                                <p class="text-xs font-bold truncate" x-text="event.title"></p>
+                                <p class="text-[10px] opacity-80 truncate" x-text="formatTime(event.time) + ' - ' + event.duration"></p>
+                            </div>
+                        </template>
+                        
+                        <!-- Current Time Line -->
+                        <div x-show="isToday(selectedDate)" 
+                             class="absolute w-full border-t-2 border-red-500 z-10 pointer-events-none"
+                             :style="getCurrentTimeStyle()">
+                            <div class="absolute -left-2 -top-1.5 w-3 h-3 bg-red-500 rounded-full"></div>
+                        </div>
+                    </div>
+                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Events Sidebar -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Today's Schedule -->
+        <div class="lg:col-span-2 rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Today's Schedule</h3>
+                <span class="text-xs text-gray-500 dark:text-gray-400" x-text="todayFormatted"></span>
+            </div>
+            <div class="divide-y divide-gray-100 dark:divide-gray-700">
+                <template x-for="event in todaysEvents" :key="event.id">
+                    <div @click="openEventModal(event)" 
+                        class="px-6 py-4 flex items-center gap-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer transition-colors">
+                        <div :class="eventDotColors[event.color]" class="w-3 h-3 rounded-full shrink-0"></div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white truncate" x-text="event.title"></p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400" x-text="formatTime(event.time)"></p>
+                        </div>
+                        <span class="text-xs text-gray-400 dark:text-gray-500" x-text="event.duration"></span>
+                    </div>
+                </template>
+                <div x-show="todaysEvents.length === 0" class="px-6 py-8 text-center">
+                    <p class="text-sm text-gray-500 dark:text-gray-400">No events scheduled for today</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-sm font-semibold text-gray-900 dark:text-white">Upcoming Events</h3>
+            </div>
+            <div class="p-4 space-y-3">
+                <template x-for="event in upcomingEvents" :key="event.id">
+                    <div @click="openEventModal(event)" 
+                        class="p-3 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 cursor-pointer transition-colors">
+                        <div class="flex items-start gap-3">
+                            <div :class="eventDotColors[event.color]" class="w-2 h-2 rounded-full mt-1.5 shrink-0"></div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-sm font-medium text-gray-900 dark:text-white truncate" x-text="event.title"></p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5" x-text="formatEventDate(event.date) + ' • ' + formatTime(event.time)"></p>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Event Modal -->
+    <div x-show="showModal" x-cloak
+        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0">
+        
+        <!-- Backdrop -->
+        <div @click="closeModal()" class="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+        
+        <!-- Modal -->
+        <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 w-full max-w-md overflow-hidden"
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 scale-95 translate-y-4"
+            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+            x-transition:leave-end="opacity-0 scale-95 translate-y-4">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white" x-text="modalMode === 'add' ? 'Add Event' : 'Event Details'"></h3>
+                <button @click="closeModal()" class="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                    <svg class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-6 space-y-4">
+                <!-- Event Title -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Event Title</label>
+                    <input type="text" x-model="eventForm.title" 
+                        class="w-full h-10 px-3 text-sm border border-gray-200 dark:border-gray-600 rounded-geist bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400 placeholder:text-gray-400"
+                        placeholder="Enter event title">
+                </div>
+                
+                <!-- Date & Time -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Date</label>
+                        <input type="date" x-model="eventForm.date" 
+                            class="w-full h-10 px-3 text-sm border border-gray-200 dark:border-gray-600 rounded-geist bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Time</label>
+                        <input type="time" x-model="eventForm.time" 
+                            class="w-full h-10 px-3 text-sm border border-gray-200 dark:border-gray-600 rounded-geist bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400">
+                    </div>
+                </div>
+                
+                <!-- Duration -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Duration</label>
+                    <select x-model="eventForm.duration" 
+                        class="w-full h-10 px-3 text-sm border border-gray-200 dark:border-gray-600 rounded-geist bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400">
+                        <option value="30 min">30 minutes</option>
+                        <option value="1 hour">1 hour</option>
+                        <option value="1.5 hours">1.5 hours</option>
+                        <option value="2 hours">2 hours</option>
+                        <option value="3 hours">3 hours</option>
+                        <option value="All day">All day</option>
+                    </select>
+                </div>
+                
+                <!-- Color -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Color</label>
+                    <div class="flex items-center gap-2">
+                        <template x-for="color in ['blue', 'green', 'amber', 'red', 'violet', 'gray']" :key="color">
+                            <button @click="eventForm.color = color" type="button"
+                                :class="[
+                                    eventDotColors[color],
+                                    eventForm.color === color ? 'ring-2 ring-offset-2 ring-gray-900 dark:ring-white dark:ring-offset-gray-800' : ''
+                                ]"
+                                class="w-6 h-6 rounded-full transition-all">
+                            </button>
+                        </template>
+                    </div>
+                </div>
+                
+                <!-- Description -->
+                <div>
+                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Description</label>
+                    <textarea x-model="eventForm.description" rows="3"
+                        class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-600 rounded-geist bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400 placeholder:text-gray-400 resize-none"
+                        placeholder="Add description (optional)"></textarea>
+                </div>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <button x-show="modalMode === 'edit'" @click="deleteEvent()" 
+                    class="px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-geist transition-colors">
+                    Delete
+                </button>
+                <div class="flex items-center gap-3 ml-auto">
+                    <button @click="closeModal()" 
+                        class="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                        Cancel
+                    </button>
+                    <button @click="saveEvent()" 
+                        class="px-4 py-2 text-sm font-medium bg-gray-900 dark:bg-white text-white dark:text-gray-900 rounded-geist hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
+                        <span x-text="modalMode === 'add' ? 'Add Event' : 'Save Changes'"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    [x-cloak] { display: none !important; }
+</style>
+
+<script>
+function calendarApp() {
+    return {
+        currentDate: new Date(),
+        selectedDate: null,
+        view: 'month',
+        showModal: false,
+        modalMode: 'add',
+        currentEvent: null,
+        hours: Array.from({length: 24}, (_, i) => i),
+        
+        eventForm: {
+            title: '',
+            date: '',
+            time: '09:00',
+            duration: '1 hour',
+            color: 'blue',
+            description: ''
+        },
+        
+        // Sample events with 24h time format
+        events: [
+            { id: 1, title: 'Team Standup', date: '2025-11-26', time: '09:00', duration: '30 min', color: 'blue', description: 'Daily team sync meeting' },
+            { id: 2, title: 'Project Review', date: '2025-11-26', time: '14:00', duration: '1 hour', color: 'green', description: 'Q4 project milestone review' },
+            { id: 3, title: 'Client Call', date: '2025-11-26', time: '16:30', duration: '45 min', color: 'amber', description: 'Call with Acme Corp' },
+            { id: 4, title: 'Sprint Planning', date: '2025-11-27', time: '10:00', duration: '2 hours', color: 'violet', description: 'Sprint 23 planning session' },
+            { id: 5, title: 'Design Review', date: '2025-11-28', time: '11:00', duration: '1 hour', color: 'blue', description: 'UI/UX design review' },
+            { id: 6, title: 'Product Launch', date: '2025-11-29', time: '09:00', duration: 'All day', color: 'red', description: 'v2.0 release day!' },
+            { id: 7, title: 'Team Lunch', date: '2025-11-29', time: '12:30', duration: '1.5 hours', color: 'green', description: 'Monthly team lunch' },
+            { id: 8, title: 'Code Review', date: '2025-12-01', time: '15:00', duration: '1 hour', color: 'gray', description: 'PR review session' },
+            { id: 9, title: 'Workshop', date: '2025-12-02', time: '13:00', duration: '3 hours', color: 'violet', description: 'React 19 features workshop' },
+            { id: 10, title: 'Board Meeting', date: '2025-12-05', time: '10:00', duration: '2 hours', color: 'red', description: 'Quarterly board meeting' },
+        ],
+        
+        eventColors: {
+            blue: 'bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800',
+            green: 'bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800',
+            amber: 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800',
+            red: 'bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800',
+            violet: 'bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800',
+            gray: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-600',
+        },
+        
+        eventDotColors: {
+            blue: 'bg-blue-500',
+            green: 'bg-green-500',
+            amber: 'bg-amber-500',
+            red: 'bg-red-500',
+            violet: 'bg-violet-500',
+            gray: 'bg-gray-500',
+        },
+        
+        init() {
+            this.selectedDate = this.formatDate(new Date());
+        },
+        
+        get headerTitle() {
+            if (this.view === 'month') {
+                return this.currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            } else {
+                const date = new Date(this.selectedDate + 'T00:00:00');
+                return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            }
+        },
+        
+        get todayFormatted() {
+            return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        },
+        
+        get calendarDays() {
+            const year = this.currentDate.getFullYear();
+            const month = this.currentDate.getMonth();
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startingDay = firstDay.getDay();
+            const totalDays = lastDay.getDate();
+            
+            const days = [];
+            const today = this.formatDate(new Date());
+            
+            // Previous month days
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            for (let i = startingDay - 1; i >= 0; i--) {
+                const date = new Date(year, month - 1, prevMonthLastDay - i);
+                days.push({
+                    dayNumber: prevMonthLastDay - i,
+                    date: this.formatDate(date),
+                    currentMonth: false,
+                    isToday: false,
+                    isSelected: this.formatDate(date) === this.selectedDate
+                });
+            }
+            
+            // Current month days
+            for (let i = 1; i <= totalDays; i++) {
+                const date = new Date(year, month, i);
+                const dateStr = this.formatDate(date);
+                days.push({
+                    dayNumber: i,
+                    date: dateStr,
+                    currentMonth: true,
+                    isToday: dateStr === today,
+                    isSelected: dateStr === this.selectedDate
+                });
+            }
+            
+            // Next month days
+            const remainingDays = 42 - days.length;
+            for (let i = 1; i <= remainingDays; i++) {
+                const date = new Date(year, month + 1, i);
+                days.push({
+                    dayNumber: i,
+                    date: this.formatDate(date),
+                    currentMonth: false,
+                    isToday: false,
+                    isSelected: this.formatDate(date) === this.selectedDate
+                });
+            }
+            
+            return days;
+        },
+        
+        get todaysEvents() {
+            const today = this.formatDate(new Date());
+            return this.events.filter(e => e.date === today).sort((a, b) => a.time.localeCompare(b.time));
+        },
+        
+        get upcomingEvents() {
+            const today = this.formatDate(new Date());
+            return this.events
+                .filter(e => e.date >= today)
+                .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
+                .slice(0, 5);
+        },
+        
+        get dayEvents() {
+            return this.events.filter(e => e.date === this.selectedDate);
+        },
+        
+        formatDate(date) {
+            return date.toISOString().split('T')[0];
+        },
+        
+        formatEventDate(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        },
+        
+        getEventsForDate(date) {
+            if (!date) return [];
+            return this.events.filter(e => e.date === date).slice(0, 3);
+        },
+        
+        formatHour(hour) {
+            if (hour === 0) return '12 AM';
+            if (hour === 12) return '12 PM';
+            return hour > 12 ? `${hour - 12} PM` : `${hour} AM`;
+        },
+        
+        formatTime(time) {
+            if (!time) return '';
+            const [hours, minutes] = time.split(':');
+            const h = parseInt(hours);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const hour12 = h % 12 || 12;
+            return `${hour12}:${minutes} ${ampm}`;
+        },
+        
+        getEventStyle(event) {
+            const [hours, minutes] = event.time.split(':').map(Number);
+            const startMinutes = hours * 60 + minutes;
+            const top = (startMinutes / 60) * 80; // 80px per hour
+            
+            let durationMinutes = 60;
+            if (event.duration.includes('min')) {
+                durationMinutes = parseInt(event.duration);
+            } else if (event.duration.includes('hour')) {
+                durationMinutes = parseFloat(event.duration) * 60;
+            }
+            
+            const height = (durationMinutes / 60) * 80;
+            
+            return `top: ${top}px; height: ${height}px;`;
+        },
+        
+        getCurrentTimeStyle() {
+            const now = new Date();
+            const minutes = now.getHours() * 60 + now.getMinutes();
+            const top = (minutes / 60) * 80;
+            return `top: ${top}px;`;
+        },
+        
+        isToday(dateStr) {
+            return dateStr === this.formatDate(new Date());
+        },
+        
+        previous() {
+            if (this.view === 'month') {
+                this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
+            } else {
+                const date = new Date(this.selectedDate + 'T00:00:00');
+                date.setDate(date.getDate() - 1);
+                this.selectedDate = this.formatDate(date);
+                this.currentDate = new Date(date.getFullYear(), date.getMonth(), 1);
+            }
+        },
+        
+        next() {
+            if (this.view === 'month') {
+                this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
+            } else {
+                const date = new Date(this.selectedDate + 'T00:00:00');
+                date.setDate(date.getDate() + 1);
+                this.selectedDate = this.formatDate(date);
+                this.currentDate = new Date(date.getFullYear(), date.getMonth(), 1);
+            }
+        },
+        
+        goToToday() {
+            this.currentDate = new Date();
+            this.selectedDate = this.formatDate(new Date());
+        },
+        
+        selectDate(date) {
+            this.selectedDate = date;
+            this.view = 'day';
+        },
+        
+        openAddEventModal() {
+            this.modalMode = 'add';
+            this.eventForm = {
+                title: '',
+                date: this.selectedDate || this.formatDate(new Date()),
+                time: '09:00',
+                duration: '1 hour',
+                color: 'blue',
+                description: ''
+            };
+            this.showModal = true;
+        },
+        
+        openEventModal(event) {
+            this.modalMode = 'edit';
+            this.currentEvent = event;
+            this.eventForm = { ...event };
+            this.showModal = true;
+        },
+        
+        closeModal() {
+            this.showModal = false;
+            this.currentEvent = null;
+        },
+        
+        saveEvent() {
+            if (!this.eventForm.title.trim()) return;
+            
+            if (this.modalMode === 'add') {
+                const newEvent = {
+                    id: Date.now(),
+                    ...this.eventForm
+                };
+                this.events.push(newEvent);
+            } else {
+                const index = this.events.findIndex(e => e.id === this.currentEvent.id);
+                if (index !== -1) {
+                    this.events[index] = {
+                        ...this.currentEvent,
+                        ...this.eventForm
+                    };
+                }
+            }
+            
+            this.closeModal();
+        },
+        
+        deleteEvent() {
+            if (this.currentEvent) {
+                this.events = this.events.filter(e => e.id !== this.currentEvent.id);
+                this.closeModal();
+            }
+        }
+    };
+}
+</script>
+{% endblock %}
+"""
+
+# Path to the file
+file_path = os.path.join(os.getcwd(), 'templates', 'calendar.html')
+
+# Write the content to the file
+with open(file_path, 'w', encoding='utf-8') as f:
+    f.write(calendar_html_content)
+
+print(f"Successfully overwrote {file_path}")

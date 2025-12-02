@@ -1,0 +1,5 @@
+{% with value=value|default:0 max=100 color=color|default:'blue' %}
+<div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+    <div class="h-full rounded-full transition-all duration-500 ease-out {% if color == 'blue' %}bg-blue-600 dark:bg-blue-400{% elif color == 'red' %}bg-red-600 dark:bg-red-400{% elif color == 'green' %}bg-green-600 dark:bg-green-400{% elif color == 'gray' %}bg-gray-900 dark:bg-gray-300{% endif %}" style="width: {{ value }}%"></div>
+</div>
+{% endwith %}

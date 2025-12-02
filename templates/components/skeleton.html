@@ -1,0 +1,28 @@
+{% with width=width|default:'w-full' height=height|default:'h-4' rounded=rounded|default:'rounded-geist' %}
+<div class="skeleton-shimmer {{ width }} {{ height }} {{ rounded }} {{ class }}"></div>
+
+<style>
+.skeleton-shimmer {
+    position: relative;
+    overflow: hidden;
+    background-color: #fafafa;
+}
+.dark .skeleton-shimmer {
+    background-color: #374151;
+}
+.skeleton-shimmer::after {
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(90deg, rgba(255,255,255,0) 0, rgba(255,255,255,0.5) 20%, rgba(255,255,255,0.8) 60%, rgba(255,255,255,0));
+    animation: shimmer 2s infinite;
+    content: '';
+}
+.dark .skeleton-shimmer::after {
+    background-image: linear-gradient(90deg, rgba(55,65,81,0) 0, rgba(55,65,81,0.5) 20%, rgba(55,65,81,0.8) 60%, rgba(55,65,81,0));
+}
+@keyframes shimmer {
+    100% { transform: translateX(100%); }
+}
+</style>
+{% endwith %}

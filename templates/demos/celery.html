@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}Celery Demo{% endblock %}
+{% block breadcrumb %}Demos / Celery Tasks{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Celery Task Monitor</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Trigger and monitor background tasks using Celery and Celery Progress.</p>
+        </div>
+    </div>
+
+    <div class="rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white leading-6">Long Running Task</h3>
+        </div>
+        <div class="p-6 space-y-6" x-data="celeryDemo()">
+            <div class="flex gap-4 items-end">
+                <div class="flex-1">
+                    <label class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Duration (seconds)</label>
+                    <input type="number" name="duration" value="10"
+                        class="mt-1.5 flex h-10 w-full rounded-geist border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400 focus:border-gray-900 dark:focus:border-gray-400 placeholder:text-gray-400 dark:placeholder:text-gray-500 hover:border-gray-400 dark:hover:border-gray-500">
+                </div>
+                <button @click="startTask" :disabled="taskId !== null"
+                    class="h-10 px-4 rounded-geist bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium hover:bg-gray-800 dark:hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                    Start Task
+                </button>
+            </div>
+
+            <div x-show="taskId" class="space-y-2">
+                <div class="flex justify-between text-sm text-gray-600 dark:text-gray-400">
+                    <span x-text="progressMessage || 'Starting...'"></span>
+                    <span x-text="progressPercent + '%'"></span>
+                </div>
+                <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                    <div class="h-full bg-blue-600 dark:bg-blue-400 transition-all duration-300" :style="`width: ${progressPercent}%`"></div>
+                </div>
+            </div>
+
+            <div x-show="result" class="p-4 bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 rounded-geist border border-green-200 dark:border-green-800 text-sm">
+                <span class="font-medium">Result:</span> <span x-text="result"></span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'celery_progress/celery_progress.js' %}"></script>
+<script>
+    function celeryDemo() {
+        return {
+            taskId: null,
+            progressPercent: 0,
+            progressMessage: '',
+            result: null,
+
+            async startTask() {
+                const duration = document.querySelector('input[name="duration"]').value;
+                this.taskId = 'starting';
+                this.progressPercent = 0;
+                this.progressMessage = 'Initializing...';
+                this.result = null;
+
+                const response = await fetch('/api/tasks/start', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ seconds: parseInt(duration) })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    this.taskId = data.task_id;
+                    this.initProgressBar();
+                }
+            },
+
+            initProgressBar() {
+                const progressUrl = `/celery-progress/${this.taskId}/`;
+
+                CeleryProgressBar.initProgressBar(progressUrl, {
+                    onProgress: (progressBarElement, progressBarMessageElement, progress) => {
+                        this.progressPercent = progress.percent;
+                        this.progressMessage = progress.description;
+                    },
+                    onSuccess: (progressBarElement, progressBarMessageElement, result) => {
+                        this.progressPercent = 100;
+                        this.progressMessage = 'Completed';
+                        this.result = result;
+                        setTimeout(() => { this.taskId = null; }, 2000);
+                    }
+                });
+            }
+        }
+    }
+</script>
+{% endblock %}

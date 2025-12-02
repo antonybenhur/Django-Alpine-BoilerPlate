@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}Settings{% endblock %}
+{% block breadcrumb %}Settings{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-semibold text-gray-900 dark:text-white">Account Settings</h1>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6">
+        <!-- Profile Section -->
+        <div class="rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white leading-6">Profile</h3>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center gap-4">
+                    <div class="relative inline-block rounded-full overflow-hidden bg-gray-100 dark:bg-gray-700 ring-1 ring-gray-200 dark:ring-gray-600" style="width: 64px; height: 64px;">
+                        <div class="w-full h-full bg-gradient-to-tr from-blue-500 to-purple-500"></div>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ user.username }}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Section -->
+        <div class="rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white leading-6">Security</h3>
+            </div>
+            <div class="p-6 space-y-4">
+                <div class="flex items-center justify-between py-2">
+                    <div>
+                        <h4 class="text-sm font-medium text-gray-900 dark:text-white">Two-Factor Authentication</h4>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Add an extra layer of security to your account.</p>
+                    </div>
+                    {% if otp_device %}
+                    <div class="flex items-center gap-3">
+                        <span class="inline-flex items-center justify-center font-medium border border-transparent whitespace-nowrap rounded-geist px-2.5 py-0.5 text-xs h-6 bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400">Enabled</span>
+                        <form method="POST" action="{% url 'otp_disable' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="inline-flex items-center justify-center h-8 px-3 text-sm font-medium border rounded-geist bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 hover:border-red-300 dark:hover:border-red-700 transition-colors">
+                                Disable
+                            </button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <a href="{% url 'otp_setup' %}" class="inline-flex items-center justify-center h-8 px-3 text-sm font-medium border border-gray-200 dark:border-gray-600 rounded-geist bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
+                        Enable 2FA
+                    </a>
+                    {% endif %}
+                </div>
+
+                <div class="border-t border-gray-100 dark:border-gray-700 pt-4">
+                    <div class="flex items-center justify-between py-2">
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-900 dark:text-white">Password</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Change your password.</p>
+                        </div>
+                        <a href="{% url 'account_change_password' %}" class="inline-flex items-center justify-center h-8 px-3 text-sm font-medium border border-gray-200 dark:border-gray-600 rounded-geist bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
+                            Change Password
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

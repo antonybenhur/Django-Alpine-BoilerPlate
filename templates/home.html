@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}CRIUS - Modern Django Boilerplate{% endblock %}
+{% block breadcrumb %}{% endblock %}
+
+{% block content %}
+<div class="space-y-16 pb-16">
+    <!-- Hero Section -->
+    <div class="relative pt-8 pb-16">
+        <!-- Background gradient -->
+        <div class="absolute inset-0 -z-10 overflow-hidden">
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] opacity-30 dark:opacity-20">
+                <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-blue-500 via-violet-500 to-cyan-400 blur-3xl"></div>
+            </div>
+        </div>
+        
+        <div class="text-center max-w-3xl mx-auto">
+            <!-- Badge -->
+            <div class="inline-flex items-center gap-2 px-3 py-1 mb-6 text-xs font-medium bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full text-gray-600 dark:text-gray-400">
+                <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                Production-ready Django starter
+            </div>
+            
+            <!-- Main heading -->
+            <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">
+                Build faster with
+                <span class="relative">
+                    <span class="relative z-10 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-violet-600 to-cyan-500">CRIUS</span>
+                </span>
+            </h1>
+            
+            <p class="mt-6 text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto leading-relaxed">
+                A modern Django boilerplate with authentication, background tasks, 
+                real-time WebSockets, and a beautiful component library. Start shipping today.
+            </p>
+            
+            <!-- CTA buttons -->
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mt-10">
+                <a href="{% url 'account_signup' %}" class="inline-flex items-center justify-center h-12 px-8 text-sm font-medium border border-transparent rounded-geist bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-all shadow-lg shadow-gray-900/20 dark:shadow-white/10">
+                    Get Started Free
+                    <svg class="w-4 h-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                    </svg>
+                </a>
+                <a href="{% url 'account_login' %}" class="inline-flex items-center justify-center h-12 px-8 text-sm font-medium border border-gray-200 dark:border-gray-600 rounded-geist bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 hover:border-gray-400 dark:hover:border-gray-500 transition-all backdrop-blur-sm">
+                    Sign In
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Grid -->
+    <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-12">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Everything you need</h2>
+            <p class="mt-2 text-gray-500 dark:text-gray-400">Built with modern tools and best practices</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <!-- Authentication -->
+            <div class="group rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 hover:border-gray-400 dark:hover:border-gray-500 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center mb-4 shadow-lg shadow-blue-500/25">
+                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-2">Authentication</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Email-based login, Google OAuth, and TOTP 2FA powered by Django Allauth.</p>
+            </div>
+
+            <!-- Background Tasks -->
+            <div class="group rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 hover:border-gray-400 dark:hover:border-gray-500 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center mb-4 shadow-lg shadow-amber-500/25">
+                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                </div>
+                <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-2">Background Tasks</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Celery worker and beat scheduler for async processing and scheduled jobs.</p>
+            </div>
+
+            <!-- Real-time -->
+            <div class="group rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 hover:border-gray-400 dark:hover:border-gray-500 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center mb-4 shadow-lg shadow-green-500/25">
+                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-2">WebSockets</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Django Channels with Redis for real-time bidirectional communication.</p>
+            </div>
+
+            <!-- API -->
+            <div class="group rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 hover:border-gray-400 dark:hover:border-gray-500 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mb-4 shadow-lg shadow-violet-500/25">
+                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+                    </svg>
+                </div>
+                <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-2">REST API</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Fast, type-safe APIs with Django Ninja and automatic OpenAPI documentation.</p>
+            </div>
+
+            <!-- Design System -->
+            <div class="group rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 hover:border-gray-400 dark:hover:border-gray-500 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center mb-4 shadow-lg shadow-pink-500/25">
+                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
+                    </svg>
+                </div>
+                <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-2">Geist Design</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Vercel-inspired UI with Tailwind CSS, Alpine.js, and 20+ components.</p>
+            </div>
+
+            <!-- Dark Mode -->
+            <div class="group rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 hover:border-gray-400 dark:hover:border-gray-500 transition-all">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center mb-4 shadow-lg shadow-slate-500/25">
+                    <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                    </svg>
+                </div>
+                <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-2">Dark Mode</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">System-aware theme switching with persistent preference storage.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tech Stack -->
+    <div class="max-w-4xl mx-auto">
+        <div class="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm overflow-hidden">
+            <div class="px-8 py-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Powered by</h3>
+                <span class="text-xs text-gray-400 dark:text-gray-500">Modern stack, proven tools</span>
+            </div>
+            <div class="p-8">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-6">
+                    <div class="flex flex-col items-center gap-3 p-4">
+                        <div class="w-14 h-14 bg-green-100 dark:bg-green-900/50 rounded-xl flex items-center justify-center">
+                            <span class="text-green-700 dark:text-green-400 font-bold text-lg">Dj</span>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">Django</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">v5.2</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center gap-3 p-4">
+                        <div class="w-14 h-14 bg-blue-100 dark:bg-blue-900/50 rounded-xl flex items-center justify-center">
+                            <span class="text-blue-700 dark:text-blue-400 font-bold text-lg">TW</span>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">Tailwind</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">v3.4</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center gap-3 p-4">
+                        <div class="w-14 h-14 bg-cyan-100 dark:bg-cyan-900/50 rounded-xl flex items-center justify-center">
+                            <span class="text-cyan-700 dark:text-cyan-400 font-bold text-lg">Al</span>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">Alpine.js</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">v3.x</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center gap-3 p-4">
+                        <div class="w-14 h-14 bg-red-100 dark:bg-red-900/50 rounded-xl flex items-center justify-center">
+                            <span class="text-red-700 dark:text-red-400 font-bold text-lg">Re</span>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-sm font-medium text-gray-900 dark:text-white">Redis</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Docker</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Links -->
+    <div class="max-w-4xl mx-auto">
+        <div class="text-center mb-8">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Try the demos</h2>
+            <p class="mt-2 text-gray-500 dark:text-gray-400">Sign in to explore the interactive features</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <a href="{% url 'demo_todo' %}" class="group flex items-center gap-4 p-4 rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-blue-400 dark:hover:border-blue-500 transition-all">
+                <div class="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">Todo App</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">CRUD with Ninja API</p>
+                </div>
+                <svg class="w-4 h-4 ml-auto text-gray-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+
+            <a href="{% url 'demo_celery' %}" class="group flex items-center gap-4 p-4 rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-amber-400 dark:hover:border-amber-500 transition-all">
+                <div class="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-amber-600 dark:text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">Celery Tasks</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Background jobs</p>
+                </div>
+                <svg class="w-4 h-4 ml-auto text-gray-400 group-hover:text-amber-500 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+
+            <a href="{% url 'demo_websockets' %}" class="group flex items-center gap-4 p-4 rounded-geist border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-green-400 dark:hover:border-green-500 transition-all">
+                <div class="w-10 h-10 rounded-lg bg-green-50 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">WebSockets</p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Real-time echo</p>
+                </div>
+                <svg class="w-4 h-4 ml-auto text-gray-400 group-hover:text-green-500 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer CTA -->
+    <div class="text-center pt-8">
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Ready to start building?</p>
+        <a href="{% url 'account_signup' %}" class="inline-flex items-center justify-center h-10 px-6 text-sm font-medium border border-transparent rounded-geist bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 transition-colors">
+            Create your account
+        </a>
+    </div>
+</div>
+{% endblock %}

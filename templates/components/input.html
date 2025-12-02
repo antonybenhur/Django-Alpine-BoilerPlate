@@ -1,0 +1,14 @@
+{% with type=type|default:'text' name=name|default:'' id=id|default:name label=label value=value|default:'' placeholder=placeholder|default:'' error=error disabled=disabled %}
+<div class="flex flex-col gap-1.5 w-full {{ wrapper_class }}">
+    {% if label %}<label for="{{ id }}" class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">{{ label }}</label>{% endif %}
+    <div class="relative flex items-center group">
+        {% if prefix %}<span class="absolute left-3 text-gray-400 dark:text-gray-500 text-sm pointer-events-none select-none">{{ prefix }}</span>{% endif %}
+        <input type="{{ type }}" name="{{ name }}" id="{{ id }}" value="{{ value }}" placeholder="{{ placeholder }}" {% if disabled %}disabled{% endif %}
+            class="flex h-10 w-full rounded-geist border bg-white dark:bg-gray-700 px-3 py-2 text-sm text-gray-900 dark:text-white transition-colors focus:outline-none focus:ring-1 focus:ring-gray-900 dark:focus:ring-gray-400 focus:border-gray-900 dark:focus:border-gray-400 disabled:cursor-not-allowed disabled:bg-gray-50 dark:disabled:bg-gray-800 disabled:text-gray-400 dark:disabled:text-gray-500 placeholder:text-gray-400 dark:placeholder:text-gray-500
+            {% if prefix %}pl-8{% endif %} {% if suffix %}pr-8{% endif %}
+            {% if error %}border-red-500 focus:border-red-500 focus:ring-red-500 text-red-900 dark:text-red-400{% else %}border-gray-200 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500{% endif %} {{ class }}">
+        {% if suffix %}<span class="absolute right-3 text-gray-400 dark:text-gray-500 text-sm pointer-events-none select-none">{{ suffix }}</span>{% endif %}
+    </div>
+    {% if error %}<span class="text-xs text-red-500 dark:text-red-400 mt-0.5">{{ error }}</span>{% endif %}
+</div>
+{% endwith %}

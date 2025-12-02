@@ -1,0 +1,9 @@
+{% with name=name|default:'' id=id|default:name label=label checked=checked %}
+<div x-data="{ on: {{ checked|yesno:'true,false' }} }" class="flex items-center justify-between gap-4">
+    {% if label %}<label @click="$refs.toggleBtn.click()" class="text-sm font-medium text-gray-900 dark:text-white cursor-pointer">{{ label }}</label>{% endif %}
+    <input type="hidden" name="{{ name }}" :value="on ? 'True' : 'False'">
+    <button x-ref="toggleBtn" type="button" role="switch" :aria-checked="on" @click="on = !on" :class="on ? 'bg-gray-900 dark:bg-white' : 'bg-gray-200 dark:bg-gray-600'" class="relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-gray-200 dark:focus:ring-gray-600 focus:ring-offset-2 dark:focus:ring-offset-gray-800">
+        <span :class="on ? 'translate-x-5' : 'translate-x-0'" class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-gray-900 shadow ring-0 transition duration-200 ease-in-out"></span>
+    </button>
+</div>
+{% endwith %}
