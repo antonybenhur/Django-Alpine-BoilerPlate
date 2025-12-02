@@ -12,31 +12,6 @@ A modern, production-ready Django boilerplate built for speed, scalability, and 
 *   **Task Management**:
     *   **Kanban Board**: Drag-and-drop task management with dynamic updates.
     *   **Todo List**: Simple task tracking.
-*   **Calendar**: Interactive calendar with Month and Day views, supporting event management.
-*   **Async Processing**: Pre-configured **Celery** and **Redis** for background tasks and scheduled jobs (Celery Beat).
-*   **Real-time Capabilities**: **WebSockets** support via Django Channels (Daphne).
-*   **Email Testing**: Integrated **Mailhog** for local email testing.
-*   **Dockerized**: Fully containerized environment for consistent development and deployment.
-
-## � Screenshots
-
-### Dashboard
-![Dashboard](screenshots/dashboard.png)
-
-### Kanban Board
-![Kanban Board](screenshots/kanban.png)
-
-### Calendar
-![Calendar](screenshots/calendar.png)
-
-### Login Page
-![Login Page](screenshots/login.png)
-
-## �🛠️ Tech Stack
-
-*   **Backend**: Python 3.11+, Django 5.0+
-*   **Frontend**: HTML5, Tailwind CSS, Alpine.js
-*   **Database**: PostgreSQL 15
 *   **Caching/Message Broker**: Redis 7
 *   **Server**: Daphne (ASGI)
 *   **Containerization**: Docker & Docker Compose
